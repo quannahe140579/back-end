@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +48,7 @@ public class UserAPI {
 		User user = null;
 		if (form != null) {
 			if (!form.getUsername().isEmpty() && !form.getPassword().isEmpty()) {
-				user = userRepository.findByUsernameAndPassword(form.getUsername(), form.getPassword());
+				user = userRepository.findByUsernameAndPasswordAndIsActiveTrue(form.getUsername(), form.getPassword());
 				if (user != null) {
 					return UserMapper._toDTO(user);
 				} else {
@@ -61,7 +60,7 @@ public class UserAPI {
 	}
 
 	@PostMapping(value = "/register")
-	public UserDTO register(@RequestBody RegisterForm form) {
+	public UserDTO register(@RequestBody(required = true) RegisterForm form) {
 		User user = null;
 		User result = null;
 		if (form != null) {
@@ -81,6 +80,9 @@ public class UserAPI {
 				
 				result = userRepository.save(user);
 				
+				Friend f = _convertUserToFriend(user);
+				friendRepository.save(f);
+				
 				if (result != null) {
 					return UserMapper._toDTO(result);
 				} else {
@@ -91,8 +93,6 @@ public class UserAPI {
 		return null;
 	}
 
-	
-	
 	
 	@GetMapping(value = "/test")
 	public UserDTO _generateUser() {
@@ -149,7 +149,7 @@ public class UserAPI {
 
 			userRepository.save(u);
 		}
-		Optional<User> result = userRepository.findById(24L);
+		Optional<User> result = userRepository.findById(4L);
 
 		return UserMapper._toDTO(result.orElse(null));
 	}
@@ -201,16 +201,7 @@ public class UserAPI {
 
 		// create Friend first
 		Friend createdUser = new Friend();
-
-		createdUser.setCreatedDate(u.getCreatedDate());
-		createdUser.setActive(u.isActive());
-		createdUser.setPassword(u.getPassword());
 		createdUser.setUsername(u.getUsername());
-		createdUser.setAddress(u.getAddress());
-
-		createdUser.setDateOfBirth(u.getDateOfBirth());
-		createdUser.setFullName(u.getFullName());
-		createdUser.setPhone(u.getPhone());
 
 		return createdUser;
 	}

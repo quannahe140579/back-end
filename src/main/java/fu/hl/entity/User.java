@@ -21,7 +21,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import lombok.Data;
 
 @Entity
-@Table(name = "[User]")
+@Table(name = "Users")
 @Data
 public class User extends Account {
 	@Column(name = "full_name", length = 30)

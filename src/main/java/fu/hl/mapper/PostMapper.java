@@ -1,5 +1,7 @@
 package fu.hl.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.util.CollectionUtils;
@@ -21,5 +23,14 @@ public class PostMapper {
 		dto.setTotalLike(entity.getTotalLike());
 		dto.setUser_id(entity.getUser().getId());
 		return dto;
+	}
+	public static List<PostDTO> _toListDTO(List<Post> listEntity){
+		List<PostDTO> result = new ArrayList<>();
+		if(listEntity != null) {
+			for (Post post : listEntity) {
+				result.add(_toDTO(post));
+			}
+		}
+		return result;
 	}
 }
