@@ -22,6 +22,7 @@ public class PostMapper {
 				: entity.getListImage().stream().map(i -> ImageMapper._toDTO(i)).collect(Collectors.toList()));
 		dto.setTotalLike(entity.getTotalLike());
 		dto.setUser_id(entity.getUser().getId());
+		dto.setUserName(entity.getUser().getUsername());
 		return dto;
 	}
 	public static List<PostDTO> _toListDTO(List<Post> listEntity){

@@ -37,4 +37,7 @@ public class Friend{
 	
 	@Column(name = "username", length = 30, nullable = false,unique = true)
 	private String username;
+	
+	@OneToMany(mappedBy = "friend",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private List<Comment> listComment;
 }

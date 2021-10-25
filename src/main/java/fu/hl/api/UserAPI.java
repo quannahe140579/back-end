@@ -1,22 +1,19 @@
 package fu.hl.api;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import javax.imageio.ImageIO;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.javafaker.Faker;
@@ -30,6 +27,7 @@ import fu.hl.entity.User;
 import fu.hl.mapper.UserMapper;
 import fu.hl.model.LoginForm;
 import fu.hl.model.RegisterForm;
+import fu.hl.model.UserForm;
 import fu.hl.repositories.FriendRepository;
 import fu.hl.repositories.UserRepository;
 
@@ -49,6 +47,7 @@ public class UserAPI {
 		if (form != null) {
 			if (!form.getUsername().isEmpty() && !form.getPassword().isEmpty()) {
 				user = userRepository.findByUsernameAndPasswordAndIsActiveTrue(form.getUsername(), form.getPassword());
+				
 				if (user != null) {
 					return UserMapper._toDTO(user);
 				} else {
@@ -92,7 +91,38 @@ public class UserAPI {
 		}
 		return null;
 	}
-
+	@PostMapping("/profile")
+	public UserDTO editProfile(@RequestBody(required = true) UserForm form) {
+		User result = null;
+		System.out.println(form.getBirthDate().toString());
+		if(form != null) {
+			User user = userRepository.findByUsername(form.getUsername());
+			user.setAddress(form.getAddress());
+			//user.setAvatar(form.getAvatar());
+			user.setFullName(form.getFullName());
+			user.setPhone(form.getPhone());
+			user.setDateOfBirth(form.getBirthDate());
+			result = userRepository.save(user);
+			
+			String fileLocation = new File("src\\main\\resources\\static\\uploads").getAbsolutePath() + "\\" + user.getUsername() + ".jpg";
+			
+			FileOutputStream output;
+			try {
+				output = new FileOutputStream(fileLocation);
+				output.write(form.getAvatar());
+				output.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		return UserMapper._toDTO(result);
+	}
+	@GetMapping
+	public UserDTO getUserByUsername(@RequestParam String username) {
+		User u = userRepository.findByUsername(username);
+		return UserMapper._toDTO(u);
+	}
 	
 	@GetMapping(value = "/test")
 	public UserDTO _generateUser() {
@@ -132,6 +162,9 @@ public class UserAPI {
 			Comment c = _createComment(p);
 			Comment c1 = _createComment(p);
 			Comment c2 = _createComment(p);
+			c.setFriend(f);
+			c1.setFriend(f1);
+			c2.setFriend(f2);
 			List<Comment> listComment = new ArrayList<>();
 			listComment.add(c);
 			listComment.add(c1);
@@ -155,15 +188,9 @@ public class UserAPI {
 	}
 
 	private Image _createImage(Post post) {
-		Faker faker = Faker.instance();
 		Image image = new Image();
-		image.setName(faker.address().streetName());
+		image.setName("naq11.jpg");
 		image.setPost(post);
-		try {
-			image.setData(extractBytes("C:\\Users\\Admin\\Desktop\\test.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		return image;
 	}
 
@@ -189,7 +216,7 @@ public class UserAPI {
 		createdUser.setPassword("123");
 		createdUser.setUsername(faker.name().username());
 		createdUser.setAddress(faker.address().fullAddress());
-
+		createdUser.setAvatar("naq11.jpg");
 		createdUser.setDateOfBirth(faker.date().birthday());
 		createdUser.setFullName(faker.name().fullName());
 		createdUser.setPhone(faker.phoneNumber().cellPhone());
@@ -214,16 +241,5 @@ public class UserAPI {
 		return comment;
 	}
 
-	private byte[] extractBytes(String ImageName) throws IOException {
-		// open image
-		File imgPath = new File(ImageName);
-		BufferedImage bufferedImage = ImageIO.read(imgPath);
-
-		// get DataBufferBytes from Raster
-		WritableRaster raster = bufferedImage.getRaster();
-		DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
-
-		return (data.getData());
-	}
 
 }

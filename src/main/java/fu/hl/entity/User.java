@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -17,6 +16,8 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
 
@@ -27,6 +28,7 @@ public class User extends Account {
 	@Column(name = "full_name", length = 30)
 	private String fullName;
 
+	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
 	@Column(name = "birth_date")
 	@Temporal(TemporalType.DATE)
 	private Date dateOfBirth;
@@ -46,9 +48,8 @@ public class User extends Account {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Post> listPos;
 
-	@Lob
 	@Column(name = "avatar")
-	private byte[] avatar;
+	private String avatar;
 
 	@OneToMany(mappedBy = "user",targetEntity = Announce.class, cascade = CascadeType.ALL)
 	@LazyCollection(LazyCollectionOption.FALSE)

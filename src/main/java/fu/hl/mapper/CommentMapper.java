@@ -9,6 +9,7 @@ public class CommentMapper {
 		dto.setId(entity.getId());
 		dto.setPost_id(entity.getPost().getId());
 		dto.setContent(entity.getContent());
+		dto.setFriendName(entity.getFriend().getUsername());
 		return dto;
 	}
 }

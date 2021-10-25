@@ -15,4 +15,6 @@ public class PostDTO {
 	private int totalLike;
 	private boolean isActive;
 	private long user_id;
+	private String userName;
+	private String urlAvt;
 }

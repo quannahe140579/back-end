@@ -18,6 +18,6 @@ public class UserDTO {
   private String address;
   private List<FriendDTO> listFriend;
   private List<PostDTO> listPos;
-  private byte[] avatar;
+  private String avatar;
   private List<AnnounceDTO> listAnnounce;
 }

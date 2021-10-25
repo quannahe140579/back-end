@@ -17,4 +17,5 @@ public interface PostRepository extends JpaRepository<Post, Long>{
 			+ "	select f.username from friend f, user_friend uf where uf.friend_id = f.id and uf.user_id = :id  \r\n"
 			+ ")) order by p.created_date DESC", nativeQuery = true)
 	public List<Post> getAllByUserId(@Param("id") long userId);
+
 }
