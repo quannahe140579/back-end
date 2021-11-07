@@ -3,6 +3,8 @@ package fu.hl.api;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,20 +41,15 @@ public class UserAPI {
 	private UserRepository userRepository;
 	@Autowired
 	private FriendRepository friendRepository;
-	
-	
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	@PostMapping(value = "/login")
 	public UserDTO login(@RequestBody(required = true) LoginForm form) {
 		User user = null;
 		if (form != null) {
 			if (!form.getUsername().isEmpty() && !form.getPassword().isEmpty()) {
 				user = userRepository.findByUsernameAndPasswordAndIsActiveTrue(form.getUsername(), form.getPassword());
-				
-				if (user != null) {
-					return UserMapper._toDTO(user);
-				} else {
-					return null;
-				}
+				deletePostInActive(user.getListPos());
+				return UserMapper._toDTO(user);
 			}
 		}
 		return null;
@@ -94,33 +91,44 @@ public class UserAPI {
 	@PostMapping("/profile")
 	public UserDTO editProfile(@RequestBody(required = true) UserForm form) {
 		User result = null;
-		System.out.println(form.getBirthDate().toString());
+		//System.out.println(form.getBirthDate().toString());
 		if(form != null) {
 			User user = userRepository.findByUsername(form.getUsername());
 			user.setAddress(form.getAddress());
-			//user.setAvatar(form.getAvatar());
 			user.setFullName(form.getFullName());
 			user.setPhone(form.getPhone());
-			user.setDateOfBirth(form.getBirthDate());
-			result = userRepository.save(user);
-			
-			String fileLocation = new File("src\\main\\resources\\static\\uploads").getAbsolutePath() + "\\" + user.getUsername() + ".jpg";
-			
-			FileOutputStream output;
+			user.setAvatar(user.getUsername() + ".jpg");
 			try {
-				output = new FileOutputStream(fileLocation);
-				output.write(form.getAvatar());
-				output.close();
-			} catch (IOException e) {
+				user.setDateOfBirth(sdf.parse(form.getBirthDate()));
+			} catch (ParseException e) {
 				e.printStackTrace();
 			}
+			result = userRepository.save(user);
+			writeFileToStaticFolder(form.getAvatar(),user.getUsername());
 			
 		}
 		return UserMapper._toDTO(result);
 	}
+	private void writeFileToStaticFolder(byte[] data, String fileName) {
+		String fileLocation = new File("src\\main\\resources\\static\\uploads").getAbsolutePath() + "\\" + fileName + ".jpg";
+		
+		FileOutputStream output;
+		try {
+			output = new FileOutputStream(fileLocation);
+			output.write(data);
+			output.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	@GetMapping
 	public UserDTO getUserByUsername(@RequestParam String username) {
 		User u = userRepository.findByUsername(username);
+		if(u == null) {
+			UserDTO userDto = new UserDTO();
+			userDto.setUsername("");
+			return userDto;
+		}
 		return UserMapper._toDTO(u);
 	}
 	
@@ -240,6 +248,16 @@ public class UserAPI {
 		comment.setPost(post);
 		return comment;
 	}
-
+	private void deletePostInActive(List<Post> list) {
+		if(list == null) {
+			return;
+		}
+		for(int i = 0; i < list.size(); i++) {
+			if(!list.get(i).isActive()) {
+				list.remove(i);
+				i--;
+			}
+		}
+	}
 
 }

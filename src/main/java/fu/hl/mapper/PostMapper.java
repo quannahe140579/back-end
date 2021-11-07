@@ -23,6 +23,7 @@ public class PostMapper {
 		dto.setTotalLike(entity.getTotalLike());
 		dto.setUser_id(entity.getUser().getId());
 		dto.setUserName(entity.getUser().getUsername());
+		dto.setUrlAvt(entity.getUser().getAvatar());
 		return dto;
 	}
 	public static List<PostDTO> _toListDTO(List<Post> listEntity){

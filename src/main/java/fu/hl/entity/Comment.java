@@ -30,4 +30,6 @@ public class Comment {
 	@ManyToOne
 	@JoinColumn(name = "friend_id")
 	private Friend friend;
+	
+	private String urlAvt;
 }

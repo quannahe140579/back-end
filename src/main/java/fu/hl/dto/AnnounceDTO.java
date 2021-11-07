@@ -8,4 +8,5 @@ public class AnnounceDTO {
 	private long user_id;
 	private long post_id;
 	private long friend_id;
+	private String friendName;
 }

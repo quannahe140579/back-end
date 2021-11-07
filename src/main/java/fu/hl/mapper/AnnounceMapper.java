@@ -11,6 +11,7 @@ public class AnnounceMapper {
 		dto.setPost_id(entity.getPost().getId());
 		dto.setFriend_id(entity.getFriend().getId());
 		dto.setUser_id(entity.getUser().getId());
+		dto.setFriendName(entity.getFriend().getUsername());
 		return dto;
 	}
 }
