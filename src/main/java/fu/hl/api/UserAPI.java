@@ -42,6 +42,7 @@ public class UserAPI {
 	@Autowired
 	private FriendRepository friendRepository;
 	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	
 	@PostMapping(value = "/login")
 	public UserDTO login(@RequestBody(required = true) LoginForm form) {
 		User user = null;
@@ -111,10 +112,13 @@ public class UserAPI {
 	}
 	private void writeFileToStaticFolder(byte[] data, String fileName) {
 		String fileLocation = new File("src\\main\\resources\\static\\uploads").getAbsolutePath() + "\\" + fileName + ".jpg";
-		
+		File f = new File(fileLocation);
+		if(f.exists()) {
+			f.delete();
+		}
 		FileOutputStream output;
 		try {
-			output = new FileOutputStream(fileLocation);
+			output = new FileOutputStream(f);
 			output.write(data);
 			output.close();
 		} catch (IOException e) {

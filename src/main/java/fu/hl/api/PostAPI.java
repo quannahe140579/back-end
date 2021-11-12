@@ -69,7 +69,9 @@ public class PostAPI {
 		postEntity.setTotalLike(0);
 		postEntity.setCreatedDate(d);
 		postEntity.setUser(u);
+		
 		writeFileToStaticFolder(dto.getByteAvt(), u.getUsername() + createDateStr);
+		
 		Post p = repository.save(postEntity);
 		
 		Image img = new Image();
@@ -78,6 +80,26 @@ public class PostAPI {
 		List<Image> listImg = new ArrayList<Image>();
 		listImg.add(img);
 		p.setListImage(listImg);
+		return PostMapper._toDTO(p);
+	}
+	@Transactional
+	@PutMapping("/update")
+	public PostDTO updatePost(@RequestBody PostForm dto) {
+		User u = userRepository.findById(dto.getUser_id()).get();
+		Date d = new Date();
+		String createDateStr = sdf.format(d);
+		
+		Post postEntity = repository.findById(dto.getPostId()).get();
+		
+		writeFileToStaticFolder(dto.getByteAvt(), u.getUsername() + createDateStr);
+		
+		Image img = new Image();
+		img.setName(u.getUsername() + createDateStr + ".jpg");
+		img.setPost(postEntity);
+		List<Image> listImg = new ArrayList<Image>();
+		listImg.add(img);
+		postEntity.setListImage(listImg);
+		Post p = repository.save(postEntity);
 		return PostMapper._toDTO(p);
 	}
 	
@@ -110,7 +132,6 @@ public class PostAPI {
 	}
 	private void writeFileToStaticFolder(byte[] data, String fileName) {
 		String fileLocation = new File("src\\main\\resources\\static\\uploads").getAbsolutePath() + "\\" + fileName + ".jpg";
-		
 		FileOutputStream output;
 		try {
 			output = new FileOutputStream(fileLocation);
